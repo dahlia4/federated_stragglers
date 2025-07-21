@@ -32,6 +32,8 @@ class MnarStrategy(Strategy):
         self.min_fit_clients = min_fit_clients
         self.min_evaluate_clients = min_evaluate_clients
         self.min_available_clients = min_available_clients
+        self.shadow_recovery = None
+        self.survey_responses = {}
 
     def __repr__(self) -> str:
         return "MnarStrategy"
@@ -44,24 +46,45 @@ class MnarStrategy(Strategy):
         ndarrays = get_parameters(net)
         return ndarrays_to_parameters(ndarrays)
 
-    def compute_weights(self, participating_clients):
-        return [1] * len(participating_clients)
+    def compute_weights(self, participating_clients, client_ids):
+        if self.shadow_recovery is None:
+            self.shadow_recovery = ShadowRecovery(
+                "D2",
+                "S",
+                "R",
+                ["D1"],
+                pd.DataFrame(list(self.survey_responses.values())),
+            )
+            self.shadow_recovery._findRoots()
+
+        res = []
+
+        for client,id in zip(clients,client_ids):
+            score = self.shadow_recovery._propensityScoresRY(self.survey_responses[id])
+            res.append(1 / score)
+
+        return res
     
     def configure_fit(
         self, server_round: int, parameters: Parameters, client_manager: ClientManager
     ) -> List[Tuple[ClientProxy, FitIns]]:
         """Configure the next round of training."""
         participating_clients = []
+        client_ids = []
         if server_round % 2500 == 0:
+            curr_id = 0
             for client in client_manager.all():
                 client_dict = client.get_properties()
+                self.survey_responses["curr_id"] = client_dict[["R", "S", "D1", "D2"]]
                 if client_dict["R"] == 1:
                     participating_clients.append(client)
+                    client_ids.append(curr_id)
+                curr_id += 1
         # Sample clients
         sample_size, min_num_clients = self.num_fit_clients(
             client_manager.num_available()
         )
-        weights = self.compute_weights(participating_clients)
+        weights = self.compute_weights(participating_clients, client_ids)
         clients = random.choices(
             participating_clients, k=sample_size, weights=weights
         )
