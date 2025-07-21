@@ -12,6 +12,8 @@ from flwr.common import (
 )
 from flwr.server.client_manager import ClientManager
 from flwr.server.client_proxy import ClientProxy
+from typing import Dict, List, Optional, Tuple
+from flwr.server.strategy import Strategy
 from flwr.server.strategy.aggregate import aggregate, weighted_loss_avg
 
 
@@ -42,17 +44,26 @@ class MnarStrategy(Strategy):
         ndarrays = get_parameters(net)
         return ndarrays_to_parameters(ndarrays)
 
+    def compute_weights(self, participating_clients):
+        return [1] * len(participating_clients)
+    
     def configure_fit(
         self, server_round: int, parameters: Parameters, client_manager: ClientManager
     ) -> List[Tuple[ClientProxy, FitIns]]:
         """Configure the next round of training."""
-
+        participating_clients = []
+        if server_round % 2500 == 0:
+            for client in client_manager.all():
+                client_dict = client.get_properties()
+                if client_dict["R"] == 1:
+                    participating_clients.append(client)
         # Sample clients
         sample_size, min_num_clients = self.num_fit_clients(
             client_manager.num_available()
         )
-        clients = client_manager.sample(
-            num_clients=sample_size, min_num_clients=min_num_clients
+        weights = self.compute_weights(participating_clients)
+        clients = random.choices(
+            participating_clients, k=sample_size, weights=weights
         )
 
         # Create custom configs
