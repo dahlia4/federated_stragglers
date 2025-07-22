@@ -48,7 +48,10 @@ class MyClient(NumPyClient):
         return loss, len(self.valloader), {"accuracy": float(accuracy)}
 
     def get_properties(self):
-        return self._generate_set(1).iloc[0].to_dict()
+        temp_dict = self._generate_set(1).iloc[0].to_dict()
+        if temp_dict["R"] == 0:
+            temp_dict["S"] = -1
+        return temp_dict
     def _generate_set(self, n_samples):
         if len(self.demographics) == 0:
             D1 = np.random.binomial(1, 0.5, 1)
