@@ -1,5 +1,4 @@
 - Update server.py to reflect new strategy we created
-- implement client side get_properties
 - implement code for creating training set
 - modify client test to redefine survey dataset
 - make client train reflect FLewM version of train
