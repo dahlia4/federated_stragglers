@@ -1,4 +1,4 @@
+- check if i messed up _generate_set
 - Update server.py to reflect new strategy we created
-- modify client test to redefine survey dataset
 - clear out dataloader file
 - make sure dataloader stuff in client is working as expected
