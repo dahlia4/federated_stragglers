@@ -1,5 +1,5 @@
 from strategy import MnarStrategy
-from flwr.server.strategy import FedAvg
+from strategy import MnarStrategy
 from flwr.common import Context
 from flwr.server import ServerConfig, ServerApp, ServerAppComponents
 
@@ -10,13 +10,13 @@ def weighted_average(metrics):
     return {"accuracy": sum(accuracies) / sum(examples)}
 
 def server_fn(context):
-    strategy = FedAvg(
+    strategy = MnarStrategy(
         fraction_fit=1.0,
         fraction_evaluate=1.0,
         min_fit_clients=10,
         min_evaluate_clients=10,
         min_available_clients=10,
-        evaluate_metrics_aggregation_fn = weighted_average
+        #evaluate_metrics_aggregation_fn = weighted_average
     )
     config = ServerConfig(num_rounds=5)
     return ServerAppComponents(strategy=strategy, config=config)
