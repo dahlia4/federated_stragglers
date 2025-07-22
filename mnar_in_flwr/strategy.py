@@ -5,6 +5,7 @@ from flwr.common import (
     EvaluateRes,
     FitIns,
     FitRes,
+    GetPropertiesIns,
     Parameters,
     Scalar,
     ndarrays_to_parameters,
@@ -16,6 +17,9 @@ from typing import Dict, List, Optional, Tuple
 from flwr.server.strategy import Strategy
 from flwr.server.strategy.aggregate import aggregate, weighted_loss_avg
 import pandas as pd
+from net import Net, get_parameters, set_parameters, train, test
+from shadow_recovery import ShadowRecovery
+
 
 class MnarStrategy(Strategy):
     def __init__(
@@ -71,10 +75,12 @@ class MnarStrategy(Strategy):
         """Configure the next round of training."""
         participating_clients = []
         client_ids = []
-        if server_round % 2500 == 0:
+        if server_round % 2500 == 1:
+            print("HERE HERE HERE HERE HERE")
             curr_id = 0
-            for client in client_manager.all():
-                client_dict = pd.DataFrame(data=client.get_properties())
+            ins = GetPropertiesIns({})
+            for client in client_manager.all().values():
+                client_dict = pd.DataFrame(data=client.get_properties(ins,timeout=30,group_id=str(server_round)))
                 self.survey_responses["curr_id"] = client_dict[["R", "S", "D1", "D2"]]
                 if client_dict["R"] == 1:
                     participating_clients.append(client)

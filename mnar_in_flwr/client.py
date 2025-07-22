@@ -1,16 +1,21 @@
 import flwr
+import torch
 from flwr.client import NumPyClient, Client
 from flwr.common import Metrics, Context
 from knobs import DEVICE
 from net import Net, train, test, set_parameters, get_parameters
-from dataset_loader import load_datasets
+from torch.utils.data import Dataset, DataLoader
+#from dataset_loader import load_datasets
 import pandas as pd
+import numpy as np
+from scipy.special import expit
+
 
 
 class IntermediateDataset(Dataset):
     def __init__(self, features, targets):
         self.X = torch.tensor(features, dtype=torch.float32)
-        self.y = torch.tensor(targets.values, dtype=torch.float32).view(-1, 1)
+        self.y = torch.tensor(targets, dtype=torch.float32).view(-1, 1)
  
     def __len__(self):
         return len(self.X)
@@ -23,10 +28,12 @@ class MyClient(NumPyClient):
     To define NumPyClient: init, fit, evaluate, get_parameters
     """
     
-    def __init__(self,net,trainloader,valloader):
+    def __init__(self,net):
         self.net = net
         self.properties = {}
 
+
+        self.demographics = {}
         dataset = self._generate_set(1)
         self.demographics = {
             "D1": dataset.reset_index()["D1"][0],
@@ -72,7 +79,7 @@ class MyClient(NumPyClient):
         #Return loss, num_examples, and metrics dictionary
         return loss, len(self.valloader), {"accuracy": float(accuracy)}
 
-    def get_properties(self):
+    def get_properties(self, ins):
         temp_dict = self._generate_set(1).iloc[0].to_dict()
         if temp_dict["R"] == 0:
             temp_dict["S"] = -1
@@ -134,5 +141,5 @@ def client_fn(context: Context) -> Client:
     #context is a dict of necessary information
     net = Net().to(DEVICE)
     partition_id = context.node_config["partition-id"]
-    trainloader,valloader,_ = load_datasets(partition_id=partition_id)
-    return MyClient(net,trainloader,valloader).to_client()
+    #trainloader,valloader,_ = load_datasets(partition_id=partition_id)
+    return MyClient(net).to_client()

@@ -1,3 +1,5 @@
+#Should be obsolete with generated data, but might be nice for real world
+
 from knobs import NUM_CLIENTS, BATCH_SIZE
 from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
@@ -5,6 +7,7 @@ from flwr_datasets import FederatedDataset
 
 
 def load_datasets(partition_id):
+    raise("THIS SHOULD NOT BE RUNNING (load datasets)")
     #Load a dataset and a specific partition
     fds = FederatedDataset(dataset="cifar10", partitioners={"train":NUM_CLIENTS})
     partition = fds.load_partition(partition_id)
