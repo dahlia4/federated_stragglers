@@ -15,7 +15,7 @@ from flwr.server.client_proxy import ClientProxy
 from typing import Dict, List, Optional, Tuple
 from flwr.server.strategy import Strategy
 from flwr.server.strategy.aggregate import aggregate, weighted_loss_avg
-
+import pandas as pd
 
 class MnarStrategy(Strategy):
     def __init__(
@@ -74,7 +74,7 @@ class MnarStrategy(Strategy):
         if server_round % 2500 == 0:
             curr_id = 0
             for client in client_manager.all():
-                client_dict = client.get_properties()
+                client_dict = pd.DataFrame(data=client.get_properties())
                 self.survey_responses["curr_id"] = client_dict[["R", "S", "D1", "D2"]]
                 if client_dict["R"] == 1:
                     participating_clients.append(client)
