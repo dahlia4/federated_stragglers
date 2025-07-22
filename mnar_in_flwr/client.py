@@ -25,7 +25,6 @@ class MyClient(NumPyClient):
     
     def __init__(self,net,trainloader,valloader):
         self.net = net
-        self.valloader = valloader
         self.properties = {}
 
         dataset = self._generate_set(1)
@@ -61,9 +60,14 @@ class MyClient(NumPyClient):
     def evaluate(self,parameters,config):
         #Set the local model to have the global parameters
         set_parameters(self.net,parameters)
+        df = self._generate_set(1).drop(["R", "S", "D1", "D2"], axis=1)
 
+        x_val = df.drop(["O1"], axis=1).to_numpy()
+        y_val = df["O1"].to_numpy()
+        val_dataset = IntermediateDataset(x_val,y_val)
+        valloader = DataLoader(val_dataset,batch_size = 1)
         #Run our testing function
-        loss, accuracy = test(self.net,self.valloader)
+        loss, accuracy = test(self.net,valloader)
 
         #Return loss, num_examples, and metrics dictionary
         return loss, len(self.valloader), {"accuracy": float(accuracy)}
@@ -106,9 +110,13 @@ class MyClient(NumPyClient):
         O1 = np.random.binomial(1, expit(2 * X * Y + 2 * Y + 2 * Z), n_samples)
 
         train = pd.DataFrame({"X": X, "Y": Y, "Z": Z, "O1": O1})
+        x_train = train.drop(["O1"], axis=1).to_numpy()
+        y_train = train["O1"].to_numpy()
 
+        train_dataset = IntermediateDataset(x_train,y_train)
+        trainloader = DataLoader(train_dataset,batch_size = 1)
         # data_loader = DataLoader(data_set, batch_size = len(data_set.dataframe))                                       
-        O1hat = self.local_model.predict(train.drop(["O1"], axis=1).values)
+        O1hat = self.net(trainloader)[0]
 
         S = np.random.binomial(1, expit(D1 - 10 * (O1 - O1hat) ** 2), n_samples)
 
