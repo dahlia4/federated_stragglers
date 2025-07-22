@@ -1,0 +1,6 @@
+- change how server receives get_properties to make sure it works with a dict (and not a pandas dataframe)
+- Update server.py to reflect new strategy we created
+- implement client side get_properties
+- implement code for creating training set
+- modify client test to redefine survey dataset
+- make client train reflect FLewM version of train
