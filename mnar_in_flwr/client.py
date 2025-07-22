@@ -6,6 +6,18 @@ from net import Net, train, test, set_parameters, get_parameters
 from dataset_loader import load_datasets
 import pandas as pd
 
+
+class IntermediateDataset(Dataset):
+    def __init__(self, features, targets):
+        self.X = torch.tensor(features, dtype=torch.float32)
+        self.y = torch.tensor(targets.values, dtype=torch.float32).view(-1, 1)
+ 
+    def __len__(self):
+        return len(self.X)
+ 
+    def __getitem__(self, idx):
+        return self.X[idx], self.y[idx]
+
 class MyClient(NumPyClient):
     """
     To define NumPyClient: init, fit, evaluate, get_parameters
@@ -13,7 +25,6 @@ class MyClient(NumPyClient):
     
     def __init__(self,net,trainloader,valloader):
         self.net = net
-        self.trainloader = trainloader
         self.valloader = valloader
         self.properties = {}
 
@@ -22,6 +33,10 @@ class MyClient(NumPyClient):
             "D1": dataset.reset_index()["D1"][0],
             "D2": dataset.reset_index()["D2"][0],
         }
+
+        self.dataset = dataset[["X", "Y", "Z", "O1"]]
+        
+        self._generate_large_train_set(500)
         
     def get_parameters(self,config):
         #Return parameters the local model has
@@ -31,6 +46,12 @@ class MyClient(NumPyClient):
         #Set the local model to have the global parameters
         set_parameters(self.net,parameters)
 
+        df = self.dataset.sample(n=1)
+        x_train = df.drop(["O1"], axis=1).to_numpy()
+        y_train = df["O1"].to_numpy()
+
+        train_dataset = IntermediateDataset(x_train,y_train)
+        trainloader = DataLoader(train_dataset,batch_size = 1)
         #Train model locally for one epoch 
         train(self.net,self.trainloader,1)
 
@@ -52,6 +73,21 @@ class MyClient(NumPyClient):
         if temp_dict["R"] == 0:
             temp_dict["S"] = -1
         return temp_dict
+    def _generate_large_train_set(self, num_rows):
+        """                                                                                                              
+        This method generates a larger dataset for training purposes. NOTE: calling this method                          
+        mutates the dataset attribute.                                                                                   
+        """
+        large_dataset = self._generate_set(num_rows)
+        large_dataset = large_dataset[
+            (large_dataset["R"] == self.response)
+            & (large_dataset["S"] == self.satisfied)
+        ]
+
+        assert len(large_dataset) > 0
+
+        self.dataset = large_dataset[["X", "Y", "Z", "O1"]]
+
     def _generate_set(self, n_samples):
         if len(self.demographics) == 0:
             D1 = np.random.binomial(1, 0.5, 1)
