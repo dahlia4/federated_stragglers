@@ -1,4 +1,4 @@
 - Update server.py to reflect new strategy we created
-- implement code for creating training set
 - modify client test to redefine survey dataset
-- make client train reflect FLewM version of train
+- clear out dataloader file
+- make sure dataloader stuff in client is working as expected
