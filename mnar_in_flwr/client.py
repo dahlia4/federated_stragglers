@@ -40,7 +40,13 @@ class MyClient(NumPyClient):
             "D2": dataset.reset_index()["D2"][0],
         }
 
+        self.survey_dataset = dataset[["D1", "D2", "R", "S"]]
+
+        self.response = self.survey_dataset.reset_index(drop=True)["R"][0]
+        self.satisfied = self.survey_dataset.reset_index(drop=True)["S"][0]
+        
         self.dataset = dataset[["X", "Y", "Z", "O1"]]
+        
         
         self._generate_large_train_set(500)
         
@@ -121,9 +127,15 @@ class MyClient(NumPyClient):
         y_train = train["O1"].to_numpy()
 
         train_dataset = IntermediateDataset(x_train,y_train)
-        trainloader = DataLoader(train_dataset,batch_size = 1)
-        # data_loader = DataLoader(data_set, batch_size = len(data_set.dataframe))                                       
-        O1hat = self.net(trainloader)[0]
+        trainloader = DataLoader(train_dataset,batch_size = n_samples)
+        # data_loader = DataLoader(data_set, batch_size = len(data_set.dataframe))
+        print("TRAINLOADER HERE")
+        print(trainloader)
+        print(type(trainloader))
+        inputs, targets = next(iter(trainloader))
+        O1hat = self.net(inputs).detach().numpy().flatten()
+        print(O1hat)
+        #O1hat = self.net(trainloader)[0]
 
         S = np.random.binomial(1, expit(D1 - 10 * (O1 - O1hat) ** 2), n_samples)
 
