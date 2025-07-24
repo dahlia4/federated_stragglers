@@ -129,12 +129,12 @@ class MyClient(NumPyClient):
         train_dataset = IntermediateDataset(x_train,y_train)
         trainloader = DataLoader(train_dataset,batch_size = n_samples)
         # data_loader = DataLoader(data_set, batch_size = len(data_set.dataframe))
-        print("TRAINLOADER HERE")
-        print(trainloader)
-        print(type(trainloader))
+        #print("TRAINLOADER HERE")
+        #print(trainloader)
+        #print(type(trainloader))
         inputs, targets = next(iter(trainloader))
         O1hat = self.net(inputs).detach().numpy().flatten()
-        print(O1hat)
+        #print(O1hat)
         #O1hat = self.net(trainloader)[0]
 
         S = np.random.binomial(1, expit(D1 - 10 * (O1 - O1hat) ** 2), n_samples)
