@@ -76,7 +76,7 @@ class MnarStrategy(Strategy):
         participating_clients = []
         client_ids = []
         if server_round % 2500 == 1:
-            print("HERE HERE HERE HERE HERE")
+            #print("HERE HERE HERE HERE HERE")
             curr_id = 0
             ins = GetPropertiesIns({})
             for client in client_manager.all().values():
