@@ -85,7 +85,7 @@ class MyClient(NumPyClient):
         #Return loss, num_examples, and metrics dictionary
         return loss, len(self.valloader), {"accuracy": float(accuracy)}
 
-    def get_properties(self, ins):
+    def get_properties(self, ins=None,config=None):
         temp_dict = self._generate_set(1).iloc[0].to_dict()
         if temp_dict["R"] == 0:
             temp_dict["S"] = -1
