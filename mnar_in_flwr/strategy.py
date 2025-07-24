@@ -80,9 +80,14 @@ class MnarStrategy(Strategy):
             curr_id = 0
             ins = GetPropertiesIns({})
             for client in client_manager.all().values():
-                client_dict = pd.DataFrame(data=client.get_properties(ins,timeout=30,group_id=str(server_round)))
+                in_data = client.get_properties(ins,timeout=30,group_id=str(server_round)).properties
+                processed_in_data = {k: [v] for k,v in in_data.items()}
+                print(in_data)
+                client_dict = pd.DataFrame(data=processed_in_data)
+                print(client_dict)
+                print(client_dict.columns)
                 self.survey_responses["curr_id"] = client_dict[["R", "S", "D1", "D2"]]
-                if client_dict["R"] == 1:
+                if client_dict["R"][0] == 1:
                     participating_clients.append(client)
                     client_ids.append(curr_id)
                 curr_id += 1
