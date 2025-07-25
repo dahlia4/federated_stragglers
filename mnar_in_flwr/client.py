@@ -65,7 +65,7 @@ class MyClient(NumPyClient):
         train_dataset = IntermediateDataset(x_train,y_train)
         trainloader = DataLoader(train_dataset,batch_size = 1)
         #Train model locally for one epoch 
-        train(self.net,self.trainloader,1)
+        train(self.net,trainloader,1)
 
         #Return updated parameters, number of examples used for training, dict with "metrics"
         return get_parameters(self.net),len(self.trainloader),{}

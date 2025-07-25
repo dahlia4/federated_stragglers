@@ -1,5 +1,4 @@
 from strategy import MnarStrategy
-from strategy import MnarStrategy
 from flwr.common import Context
 from flwr.server import ServerConfig, ServerApp, ServerAppComponents
 
