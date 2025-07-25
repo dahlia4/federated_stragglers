@@ -114,10 +114,10 @@ class ShadowRecovery:
                     self._estimatingEquations, self.paramsY.x, method="hybr"
                 )
 
-        print(self.paramsY.success)
+        #print(self.paramsY.success)
 
         self.paramsY = self.paramsY.x
-        print(self.paramsY)
+        #print(self.paramsY)
 
     def _propensityScoresRY(self, data):
         """
@@ -126,7 +126,7 @@ class ShadowRecovery:
         """
         # p(R_Y = 1 | Y = 0)
         pRY_Y_0 = expit(
-            np.sum(self.paramsY[i] * data[self.Z[i]] for i in range(len(self.Z)))
+            sum(self.paramsY[i] * data[self.Z[i]] for i in range(len(self.Z)))
         )
         propensityScoresRY = pRY_Y_0 / (
             pRY_Y_0

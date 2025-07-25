@@ -26,9 +26,9 @@ def train(net,trainloader, epochs, verbose=False):
     for epoch in range(epochs):
         correct, total, epoch_loss = 0,0,0.0
         for batch in trainloader:
-            images, labels = batch["img"].to(DEVICE), batch["label"].to(DEVICE)
+            data, labels = batch[0].to(DEVICE), batch[1].to(DEVICE)
             optimizer.zero_grad()
-            outputs = net(images)
+            outputs = net(data)
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
@@ -47,8 +47,8 @@ def test(net,testloader):
     net.eval()
     with torch.no_grad():
         for batch in testloader:
-            images, labels = batch["img"].to(DEVICE),batch["label"].to(DEVICE)
-            outputs = net(images)
+            data, labels = batch[0].to(DEVICE),batch[1].to(DEVICE)
+            outputs = net(data)
             loss += criterion(outputs, labels).item()
             _, predicted = torch.max(outputs.data,1)
             total += labels.size(0)

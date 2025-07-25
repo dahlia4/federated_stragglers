@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Optional
 
 from flwr.common import (
     EvaluateIns,
@@ -6,6 +6,7 @@ from flwr.common import (
     FitIns,
     FitRes,
     GetPropertiesIns,
+    MetricsAggregationFn,
     Parameters,
     Scalar,
     ndarrays_to_parameters,
@@ -29,6 +30,7 @@ class MnarStrategy(Strategy):
         min_fit_clients: int = 2,
         min_evaluate_clients: int = 2,
         min_available_clients: int = 2,
+            evaluate_metrics_aggregation_fn: Optional[MetricsAggregationFn] = None,
     ) -> None:
         super().__init__()
         self.fraction_fit = fraction_fit
@@ -36,8 +38,11 @@ class MnarStrategy(Strategy):
         self.min_fit_clients = min_fit_clients
         self.min_evaluate_clients = min_evaluate_clients
         self.min_available_clients = min_available_clients
+        self.evaluate_metrics_aggregation_fn = evaluate_metrics_aggregation_fn
         self.shadow_recovery = None
         self.survey_responses = {}
+        self.participating_clients = []
+        self.client_ids = []
 
     def __repr__(self) -> str:
         return "MnarStrategy"
@@ -76,9 +81,10 @@ class MnarStrategy(Strategy):
         self, server_round: int, parameters: Parameters, client_manager: ClientManager
     ) -> List[Tuple[ClientProxy, FitIns]]:
         """Configure the next round of training."""
-        participating_clients = []
-        client_ids = []
+
         if server_round % 2500 == 1:
+            self.participating_clients = []
+            self.client_ids = []
             curr_id = 0
             ins = GetPropertiesIns({})
             for client in client_manager.all().values():
@@ -87,17 +93,15 @@ class MnarStrategy(Strategy):
                 client_dict = pd.DataFrame(data=processed_in_data)
                 self.survey_responses[curr_id] = client_dict[["R", "S", "D1", "D2"]]
                 if client_dict["R"][0] == 1:
-                    participating_clients.append(client)
-                    client_ids.append(curr_id)
+                    self.participating_clients.append(client)
+                    self.client_ids.append(curr_id)
                 curr_id += 1
         # Sample clients
         sample_size, min_num_clients = self.num_fit_clients(
             client_manager.num_available()
         )
-        weights = self.compute_weights(participating_clients, client_ids)
-        print(weights)
-        print(type(weights))
-        clients = random.choices(participating_clients, k=sample_size, weights=weights)
+        weights = self.compute_weights(self.participating_clients, self.client_ids)
+        clients = random.choices(self.participating_clients, k=sample_size, weights=weights)
 
         # Create custom configs
         standard_config = {"lr": 0.001}
@@ -139,6 +143,8 @@ class MnarStrategy(Strategy):
         """Configure the next round of evaluation."""
         if self.fraction_evaluate == 0.0:
             return []
+        if server_round % 100 != 0:
+            return []
         config = {}
         evaluate_ins = EvaluateIns(parameters, config)
 
@@ -171,6 +177,9 @@ class MnarStrategy(Strategy):
             ]
         )
         metrics_aggregated = {}
+        if server_round % 100 == 0 and self.evaluate_metrics_aggregation_fn:
+            eval_metrics = [(res.num_examples, res.metrics) for _, res in results]
+            metrics_aggregated = self.evaluate_metrics_aggregation_fn(eval_metrics)
         return loss_aggregated, metrics_aggregated
 
     def evaluate(
