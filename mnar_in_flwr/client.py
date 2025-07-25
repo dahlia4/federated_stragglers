@@ -11,7 +11,6 @@ import numpy as np
 from scipy.special import expit
 
 
-
 class IntermediateDataset(Dataset):
     def __init__(self, features, targets):
         self.X = torch.tensor(features, dtype=torch.float32)
@@ -58,7 +57,8 @@ class MyClient(NumPyClient):
         #Set the local model to have the global parameters
         set_parameters(self.net,parameters)
 
-        df = self.dataset.sample(n=1)
+
+        df = self.dataset.sample(n=10, replace=True)
         x_train = df.drop(["O1"], axis=1).to_numpy()
         y_train = df["O1"].to_numpy()
 
@@ -68,7 +68,7 @@ class MyClient(NumPyClient):
         train(self.net,trainloader,1)
 
         #Return updated parameters, number of examples used for training, dict with "metrics"
-        return get_parameters(self.net),len(self.trainloader),{}
+        return get_parameters(self.net),len(trainloader),{}
 
     def evaluate(self,parameters,config):
         #Set the local model to have the global parameters
@@ -83,7 +83,7 @@ class MyClient(NumPyClient):
         loss, accuracy = test(self.net,valloader)
 
         #Return loss, num_examples, and metrics dictionary
-        return loss, len(self.valloader), {"accuracy": float(accuracy)}
+        return loss, len(valloader), {"accuracy": float(accuracy)}
 
     def get_properties(self, ins=None,config=None):
         temp_dict = self._generate_set(1).iloc[0].to_dict()
@@ -140,9 +140,12 @@ class MyClient(NumPyClient):
         S = np.random.binomial(1, expit(D1 - 10 * (O1 - O1hat) ** 2), n_samples)
 
         pRS0 = expit(2 * D1)
+
         R = np.random.binomial(
             1, pRS0 / (pRS0 + np.exp(4 * (1 - S)) * (1 - pRS0)), n_samples
         )
+        
+
 
         df = pd.DataFrame(
             {"D1": D1, "D2": D2, "X": X, "Y": Y, "Z": Z, "O1": O1, "S": S, "R": R}

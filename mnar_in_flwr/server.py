@@ -1,6 +1,8 @@
 from strategy import MnarStrategy
 from flwr.common import Context
 from flwr.server import ServerConfig, ServerApp, ServerAppComponents
+from knobs import NUM_ROUNDS
+
 
 def weighted_average(metrics):
     accuracies = [num_examples * m["accuracy"] for num_examples, m in metrics]
@@ -15,9 +17,9 @@ def server_fn(context):
         min_fit_clients=10,
         min_evaluate_clients=10,
         min_available_clients=10,
-        #evaluate_metrics_aggregation_fn = weighted_average
+        evaluate_metrics_aggregation_fn = weighted_average
     )
-    config = ServerConfig(num_rounds=5)
+    config = ServerConfig(num_rounds=NUM_ROUNDS)
     return ServerAppComponents(strategy=strategy, config=config)
 
 server = ServerApp(server_fn=server_fn)
