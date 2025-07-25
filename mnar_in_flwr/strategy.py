@@ -19,7 +19,7 @@ from flwr.server.strategy.aggregate import aggregate, weighted_loss_avg
 import pandas as pd
 from net import Net, get_parameters, set_parameters, train, test
 from shadow_recovery import ShadowRecovery
-
+import random
 
 class MnarStrategy(Strategy):
     def __init__(
@@ -52,20 +52,23 @@ class MnarStrategy(Strategy):
 
     def compute_weights(self, participating_clients, client_ids):
         if self.shadow_recovery is None:
+            #survey_list = [v for k,v in self.survey_responses.items()]
+            #print(survey_list)
+            test = pd.concat(self.survey_responses)
             self.shadow_recovery = ShadowRecovery(
                 "D2",
                 "S",
                 "R",
                 ["D1"],
-                pd.DataFrame(list(self.survey_responses.values())),
+                pd.concat(self.survey_responses),
             )
             self.shadow_recovery._findRoots()
 
         res = []
 
-        for client,id in zip(clients,client_ids):
+        for client,id in zip(participating_clients,client_ids):
             score = self.shadow_recovery._propensityScoresRY(self.survey_responses[id])
-            res.append(1 / score)
+            res.append(float((1 / score).iloc[0]))
 
         return res
     
@@ -76,17 +79,13 @@ class MnarStrategy(Strategy):
         participating_clients = []
         client_ids = []
         if server_round % 2500 == 1:
-            #print("HERE HERE HERE HERE HERE")
             curr_id = 0
             ins = GetPropertiesIns({})
             for client in client_manager.all().values():
                 in_data = client.get_properties(ins,timeout=30,group_id=str(server_round)).properties
                 processed_in_data = {k: [v] for k,v in in_data.items()}
-                print(in_data)
                 client_dict = pd.DataFrame(data=processed_in_data)
-                print(client_dict)
-                print(client_dict.columns)
-                self.survey_responses["curr_id"] = client_dict[["R", "S", "D1", "D2"]]
+                self.survey_responses[curr_id] = client_dict[["R", "S", "D1", "D2"]]
                 if client_dict["R"][0] == 1:
                     participating_clients.append(client)
                     client_ids.append(curr_id)
@@ -96,9 +95,9 @@ class MnarStrategy(Strategy):
             client_manager.num_available()
         )
         weights = self.compute_weights(participating_clients, client_ids)
-        clients = random.choices(
-            participating_clients, k=sample_size, weights=weights
-        )
+        print(weights)
+        print(type(weights))
+        clients = random.choices(participating_clients, k=sample_size, weights=weights)
 
         # Create custom configs
         standard_config = {"lr": 0.001}
