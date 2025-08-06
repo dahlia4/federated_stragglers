@@ -18,9 +18,10 @@ from typing import Dict, List, Optional, Tuple
 from flwr.server.strategy import Strategy
 from flwr.server.strategy.aggregate import aggregate, weighted_loss_avg
 import pandas as pd
-from net import Net, get_parameters, set_parameters, train, test
-from shadow_recovery import ShadowRecovery
+from myclient.net import Net, get_parameters, set_parameters, train, test
+from myclient.shadow_recovery import ShadowRecovery
 import random
+from myclient.knobs import MISSING, COMPUTE_WEIGHTS
 
 class MnarStrategy(Strategy):
     def __init__(
@@ -56,6 +57,8 @@ class MnarStrategy(Strategy):
         return ndarrays_to_parameters(ndarrays)
 
     def compute_weights(self, participating_clients, client_ids):
+        if not COMPUTE_WEIGHTS:
+            return [1] * len(participating_clients)
         if self.shadow_recovery is None:
             #survey_list = [v for k,v in self.survey_responses.items()]
             #print(survey_list)
@@ -82,7 +85,7 @@ class MnarStrategy(Strategy):
     ) -> List[Tuple[ClientProxy, FitIns]]:
         """Configure the next round of training."""
 
-        if server_round % 2500 == 1:
+        if server_round % 200 == 1:
             self.participating_clients = []
             self.client_ids = []
             curr_id = 0
@@ -92,9 +95,14 @@ class MnarStrategy(Strategy):
                 processed_in_data = {k: [v] for k,v in in_data.items()}
                 client_dict = pd.DataFrame(data=processed_in_data)
                 self.survey_responses[curr_id] = client_dict[["R", "S", "D1", "D2"]]
-                if client_dict["R"][0] == 1:
+                if MISSING:
+                    if client_dict["R"][0] == 1:
+                        self.participating_clients.append(client)
+                        self.client_ids.append(curr_id)
+                else:
                     self.participating_clients.append(client)
                     self.client_ids.append(curr_id)
+                        
                 curr_id += 1
         # Sample clients
         sample_size, min_num_clients = self.num_fit_clients(
@@ -169,7 +177,7 @@ class MnarStrategy(Strategy):
 
         if not results:
             return None, {}
-
+        print(results[0][1].loss)
         loss_aggregated = weighted_loss_avg(
             [
                 (evaluate_res.num_examples, evaluate_res.loss)
@@ -180,6 +188,12 @@ class MnarStrategy(Strategy):
         if server_round % 10 == 0 and self.evaluate_metrics_aggregation_fn:
             eval_metrics = [(res.num_examples, res.metrics) for _, res in results]
             metrics_aggregated = self.evaluate_metrics_aggregation_fn(eval_metrics)
+            num = ""
+            with open("number.txt") as readfile:
+                for line in readfile:
+                    num = line.strip()
+            with open(f"results/res_not_missing_{num}.txt","a") as writefile:
+                writefile.write(f"{server_round}: {metrics_aggregated}\n")
         return loss_aggregated, metrics_aggregated
 
     def evaluate(
