@@ -1,2 +1,3 @@
+- Check if the response stuff i commented out in client is a problem
 - clients are not stateful--how does that break things?
 - how can i make this faster--maybe the flwr simulation stuff?

@@ -1,0 +1,74 @@
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from collections import OrderedDict
+from myclient.knobs import DEVICE
+
+#This is all some pytorch stuff i don't fully understand, but i also think it's not actually that important
+class Net(nn.Module):
+    def __init__(self):
+        #pytorch model architecture stuff
+        super(Net,self).__init__()
+        self.fc1 = nn.Linear(3, 16)
+        self.fc2 = nn.Linear(16, 8)
+        self.fc3 = nn.Linear(8, 1)
+        
+    def forward(self, x:torch.Tensor):
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        x = torch.sigmoid(x)
+        return x
+        
+def train(net,trainloader, epochs, verbose=False):
+    criterion = torch.nn.BCELoss()
+    optimizer = torch.optim.Adam(net.parameters())
+    net.train()
+    for epoch in range(epochs):
+        correct, total, epoch_loss = 0,0,0.0
+        for batch in trainloader:
+            data, labels = batch[0].to(DEVICE), batch[1].to(DEVICE)
+            optimizer.zero_grad()
+            outputs = net(data)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+            epoch_loss += loss
+            total += labels.size(0)
+            predicted = (outputs > 0.5).int()
+            correct += (predicted == labels.unsqueeze(1)).sum().item()
+            #correct += (torch.max(outputs.data, 1)[1] == labels).sum().item()
+        epoch_loss /= len(trainloader)
+        epoch_acc = correct/total
+        if verbose:
+            print(f"Epoch {epoch+1}: train loss {epoch_loss}, accuracy {epoch_acc}")
+    
+def test(net,testloader):
+    criterion = torch.nn.BCELoss()
+    correct, total, loss = 0, 0, 0
+    net.eval()
+    with torch.no_grad():
+        for batch in testloader:
+            data, labels = batch[0].to(DEVICE),batch[1].to(DEVICE)
+            outputs = net(data)
+            #print(criterion(outputs,labels))
+            loss += criterion(outputs, labels).item()
+            _, predicted = torch.max(outputs.data,1)
+            total += labels.size(0)
+            predicted = (outputs > 0.5).int()
+            correct += (predicted == labels.unsqueeze(1)).sum().item()
+            #correct += (predicted == labels).sum().item()
+    #print(f"loss is {loss}")
+    loss /= float(len(testloader.dataset))
+    accuracy = correct/ total
+    return loss, accuracy
+
+    
+def set_parameters(net,parameters):
+    params_dict = zip(net.state_dict().keys(),parameters)
+    state_dict = OrderedDict({k: torch.Tensor(v) for k, v in params_dict})
+    net.load_state_dict(state_dict,strict=True)
+    
+def get_parameters(net):
+    return [val.cpu().numpy() for _,val in net.state_dict().items()]

@@ -1,0 +1,116 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "myclient"
+version = "1.0.0"
+description = ""
+license = "Apache-2.0"
+dependencies = [
+    "flwr[simulation]>=1.19.0",
+    "flwr-datasets[vision]>=0.5.0",
+    "torch==2.5.1",
+    "torchvision==0.20.1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
+[tool.flwr.app]
+publisher = "dahlia4"
+
+[tool.flwr.app.components]
+serverapp = "myclient.server_app:app"
+clientapp = "myclient.client_app:app"
+
+[tool.flwr.app.config]
+num-server-rounds = 3
+fraction-fit = 0.5
+local-epochs = 1
+
+[tool.flwr.federations]
+default = "local-simulation"
+
+[tool.flwr.federations.local-simulation]
+options.num-supernodes = 50
+
+[tool.flwr.federations.local-simulation250]
+ options.num-supernodes = 250
+ options.backend.client-resources.num-cpus = 1 
+
+[tool.flwr.federations.local-simulation500]
+ options.num-supernodes = 500
+ options.backend.client-resources.num-cpus = 1
+ 
+[tool.flwr.federations.local-simulation750]
+ options.num-supernodes = 750
+ options.backend.client-resources.num-cpus = 1
+ 
+[tool.flwr.federations.local-simulation1000]
+ options.num-supernodes = 1000
+ options.backend.client-resources.num-cpus = 1
+ 
+[tool.flwr.federations.local-simulation1250]
+ options.num-supernodes = 1250
+ options.backend.client-resources.num-cpus = 1
+
+[tool.flwr.federations.local-simulation1500]
+ options.num-supernodes = 1500
+ options.backend.client-resources.num-cpus = 1
+ 
+[tool.flwr.federations.local-simulation1750]
+ options.num-supernodes = 1750
+ options.backend.client-resources.num-cpus = 1
+ 
+[tool.flwr.federations.local-simulation2000]
+ options.num-supernodes = 2000
+ options.backend.client-resources.num-cpus = 1
+ 
+[tool.flwr.federations.local-simulation2250]
+ options.num-supernodes = 2250
+ options.backend.client-resources.num-cpus = 1
+ 
+[tool.flwr.federations.local-simulation2500]
+ options.num-supernodes = 2500
+ options.backend.client-resources.num-cpus = 1
+ 
+[tool.flwr.federations.local-simulation2750]
+ options.num-supernodes = 2750
+ options.backend.client-resources.num-cpus = 1
+ 
+[tool.flwr.federations.local-simulation3000]
+ options.num-supernodes = 3000
+ options.backend.client-resources.num-cpus = 1
+[tool.flwr.federations.local-simulation3250]
+ options.num-supernodes = 3250
+ options.backend.client-resources.num-cpus = 1
+ 
+[tool.flwr.federations.local-simulation3500]
+ options.num-supernodes = 3500
+ options.backend.client-resources.num-cpus = 1
+ 
+[tool.flwr.federations.local-simulation3750]
+ options.num-supernodes = 3750
+ options.backend.client-resources.num-cpus = 1
+ 
+[tool.flwr.federations.local-simulation4000]
+ options.num-supernodes = 4000
+ options.backend.client-resources.num-cpus = 1
+ 
+[tool.flwr.federations.local-simulation4250]
+ options.num-supernodes = 4250
+ options.backend.client-resources.num-cpus = 1
+ 
+[tool.flwr.federations.local-simulation4500]
+ options.num-supernodes = 4500
+ options.backend.client-resources.num-cpus = 1
+ 
+[tool.flwr.federations.local-simulation4750]
+ options.num-supernodes = 4750
+ options.backend.client-resources.num-cpus = 1
+ 
+[tool.flwr.federations.local-simulation5000]
+ options.num-supernodes = 5000
+ options.backend.client-resources.num-cpus = 1
+ 
