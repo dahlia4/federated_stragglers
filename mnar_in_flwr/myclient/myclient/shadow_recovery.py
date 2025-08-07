@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from scipy.special import expit
 from scipy import optimize
-from myclient.adjustment import *
+from .adjustment import *
 import statsmodels.api as sm
 
 

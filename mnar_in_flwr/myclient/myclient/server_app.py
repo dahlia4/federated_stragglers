@@ -3,11 +3,11 @@
 from flwr.common import Context, ndarrays_to_parameters
 from flwr.server import ServerApp, ServerAppComponents, ServerConfig
 from flwr.server.strategy import FedAvg
-from myclient.task import Net, get_weights
-from myclient.strategy import MnarStrategy
+from .task import Net, get_weights
+from .strategy import MnarStrategy
 from flwr.common import Context
 from flwr.server import ServerConfig, ServerApp, ServerAppComponents
-from myclient.knobs import NUM_ROUNDS
+from .knobs import NUM_ROUNDS
 
 def weighted_average(metrics):
     accuracies = [num_examples * m["accuracy"] for num_examples, m in metrics]

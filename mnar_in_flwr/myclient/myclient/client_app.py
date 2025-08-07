@@ -4,8 +4,8 @@ import flwr
 import torch
 from flwr.client import NumPyClient, Client, ClientApp
 from flwr.common import Metrics, Context, ConfigRecord, RecordDict
-from myclient.knobs import DEVICE, MISSING
-from myclient.net import Net, train, test, set_parameters, get_parameters
+from .knobs import DEVICE, MISSING
+from .net import Net, train, test, set_parameters, get_parameters
 from torch.utils.data import Dataset, DataLoader
 #from dataset_loader import load_datasets                                                                         
 import pandas as pd
