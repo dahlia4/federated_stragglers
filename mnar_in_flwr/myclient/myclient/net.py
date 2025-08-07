@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from collections import OrderedDict
-from myclient.knobs import DEVICE
+from .knobs import DEVICE
 
 #This is all some pytorch stuff i don't fully understand, but i also think it's not actually that important
 class Net(nn.Module):

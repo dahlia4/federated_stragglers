@@ -18,10 +18,10 @@ from typing import Dict, List, Optional, Tuple
 from flwr.server.strategy import Strategy
 from flwr.server.strategy.aggregate import aggregate, weighted_loss_avg
 import pandas as pd
-from myclient.net import Net, get_parameters, set_parameters, train, test
-from myclient.shadow_recovery import ShadowRecovery
+from .net import Net, get_parameters, set_parameters, train, test
+from .shadow_recovery import ShadowRecovery
 import random
-from myclient.knobs import MISSING, COMPUTE_WEIGHTS
+from .knobs import MISSING, COMPUTE_WEIGHTS
 
 class MnarStrategy(Strategy):
     def __init__(
