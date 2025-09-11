@@ -2,8 +2,9 @@ import torch
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-NUM_CLIENTS = 50
+#NUM_CLIENTS = 50
 BATCH_SIZE = 32
 NUM_ROUNDS = 1000
-MISSING = True
+
+MISSING = False
 COMPUTE_WEIGHTS = False

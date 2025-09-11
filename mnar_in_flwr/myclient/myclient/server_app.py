@@ -16,6 +16,7 @@ def weighted_average(metrics):
     return {"accuracy": sum(accuracies) / sum(examples)}
 
 def server_fn(context):
+    
     strategy = MnarStrategy(
         fraction_fit=0.25,
         fraction_evaluate=1.0,
