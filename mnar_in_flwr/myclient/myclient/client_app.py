@@ -5,7 +5,6 @@ import torch
 from flwr.client import NumPyClient, Client, ClientApp
 from flwr.common import Metrics, Context, ConfigRecord, RecordDict
 from .knobs import DEVICE
-from .missing import MISSING
 from .net import Net, train, test, set_parameters, get_parameters
 from torch.utils.data import Dataset, DataLoader
 #from dataset_loader import load_datasets                                                                         
@@ -72,7 +71,7 @@ class MyClient(NumPyClient):
         y_train = df["O1"].to_numpy()
 
         train_dataset = IntermediateDataset(x_train,y_train)
-        trainloader = DataLoader(train_dataset,batch_size = 20)
+        trainloader = DataLoader(train_dataset,batch_size = 1)
         #Train model locally for one epoch                                                                        
         train(self.net,trainloader,1)
 
@@ -96,7 +95,7 @@ class MyClient(NumPyClient):
 
     def get_properties(self, ins=None,config=None):
         temp_dict = self._generate_set(1).iloc[0].to_dict()
-        if temp_dict["R"] == 0 and MISSING:
+        if temp_dict["R"] == 0:
             temp_dict["S"] = -1
         return temp_dict
     def _generate_large_train_set(self, num_rows):
