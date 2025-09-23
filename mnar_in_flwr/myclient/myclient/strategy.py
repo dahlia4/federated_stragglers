@@ -87,10 +87,11 @@ class MnarStrategy(Strategy):
         """Configure the next round of training."""
 
         if server_round % 200 == 1:
-            self.participating_clients = []
+            self.participating_clients.clear()
             self.client_ids = []
             curr_id = 0
             ins = GetPropertiesIns({})
+            print(len(client_manager.all().values()))
             for client in client_manager.all().values():
                 in_data = client.get_properties(ins,timeout=30,group_id=str(server_round)).properties
                 processed_in_data = {k: [v] for k,v in in_data.items()}
@@ -105,9 +106,11 @@ class MnarStrategy(Strategy):
                     self.client_ids.append(curr_id)
                         
                 curr_id += 1
+            print(len(self.participating_clients))
         # Sample clients
         sample_size, min_num_clients = self.num_fit_clients(
-            client_manager.num_available()
+            #client_manager.num_available()
+            len(self.participating_clients)
         )
         weights = self.compute_weights(self.participating_clients, self.client_ids)
         clients = random.choices(self.participating_clients, k=sample_size, weights=weights)
@@ -203,7 +206,7 @@ class MnarStrategy(Strategy):
             #    with open(f"single_results/res_computed_ends_{num}.txt","a") as writefile:
             #        writefile.write(f"{server_round}: {metrics_aggregated}\n")
             if server_round % 1000 == 0:
-                with open("test_results/1500_clients.txt","a") as writefile:
+                with open("test_results/1000_clients.txt","a") as writefile:
                     writefile.write(f"{server_round}: {metrics_aggregated}\n") 
         return loss_aggregated, metrics_aggregated
 
