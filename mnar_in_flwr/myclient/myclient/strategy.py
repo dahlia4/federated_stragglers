@@ -120,6 +120,7 @@ class MnarStrategy(Strategy):
         
         fit_configurations = []
         for idx, client in enumerate(clients):
+            client_config = {"lr": 0.001, "id": idx}
             fit_configurations.append((client, FitIns(parameters, standard_config)))
         return fit_configurations
     def get_propensity_scores(self,results,failures):

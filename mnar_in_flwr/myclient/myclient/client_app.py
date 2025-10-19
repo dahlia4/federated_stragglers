@@ -11,7 +11,7 @@ from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 import numpy as np
 from scipy.special import expit
-
+from .demographics import demographic_dict
 
 # Define Flower Client and client_fn
 class IntermediateDataset(Dataset):
@@ -48,7 +48,7 @@ class MyClient(NumPyClient):
         }
 
         self.survey_dataset = dataset[["D1", "D2", "R", "S"]]
-        
+        self.real_demographics_set = False
         #self.response = self.survey_dataset.reset_index(drop=True)["R"][0]
         #self.satisfied = self.survey_dataset.reset_index(drop=True)["S"][0]
 
@@ -62,6 +62,10 @@ class MyClient(NumPyClient):
         return get_parameters(self.net)
 
     def fit(self,parameters,config):
+        if not self.real_demographics_set:
+            self.real_demographics_set = True
+            self.demographics["D1"] = demographic_dict[config["id"]]["D1"]
+            self.demographics["D2"] = demographic_dict[config["id"]]["D2"]
         #Set the local model to have the global parameters                                                        
         set_parameters(self.net,parameters)
 
@@ -72,7 +76,7 @@ class MyClient(NumPyClient):
 
         train_dataset = IntermediateDataset(x_train,y_train)
         trainloader = DataLoader(train_dataset,batch_size = 1)
-        #Train model locally for one epoch                                                                        
+t        #Train model locally for one epoch                                                                        
         train(self.net,trainloader,1)
 
         #Return updated parameters, number of examples used for training, dict with "metrics"                     
