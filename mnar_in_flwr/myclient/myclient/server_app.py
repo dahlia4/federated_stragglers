@@ -18,7 +18,7 @@ def weighted_average(metrics):
 def server_fn(context):
     
     strategy = MnarStrategy(
-        fraction_fit=0.25,
+        fraction_fit=1.0,
         fraction_evaluate=1.0,
         #min_fit_clients=10,
         #min_evaluate_clients=10,

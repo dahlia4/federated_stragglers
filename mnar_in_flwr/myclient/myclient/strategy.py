@@ -4,6 +4,7 @@ from flwr.common import (
     EvaluateIns,
     EvaluateRes,
     FitIns,
+    Config,
     FitRes,
     GetPropertiesIns,
     MetricsAggregationFn,
@@ -21,7 +22,10 @@ import pandas as pd
 from .net import Net, get_parameters, set_parameters, train, test
 from .shadow_recovery import ShadowRecovery
 import random
-from .knobs import MISSING, COMPUTE_WEIGHTS
+import inspect
+from .missing import MISSING
+from .compute import COMPUTE_WEIGHTS
+from .knobs import NUM_ROUNDS
 
 class MnarStrategy(Strategy):
     def __init__(
@@ -74,11 +78,10 @@ class MnarStrategy(Strategy):
             self.shadow_recovery._findRoots()
 
         res = []
-
+        print(len(participating_clients))
         for client,id in zip(participating_clients,client_ids):
             score = self.shadow_recovery._propensityScoresRY(self.survey_responses[id])
             res.append(float((1 / score).iloc[0]))
-
         return res
     
     def configure_fit(
@@ -93,11 +96,16 @@ class MnarStrategy(Strategy):
             ins = GetPropertiesIns({})
             print(len(client_manager.all().values()))
             for client in client_manager.all().values():
-                in_data = client.get_properties(ins,timeout=30,group_id=str(server_round)).properties
-                processed_in_data = {k: [v] for k,v in in_data.items()}
+                ins = GetPropertiesIns({"id":curr_id})
+                #conf = Config({"id":curr_id})
+                
+                #in_data = client.get_properties(ins=ins,timeout=30,group_id=str(server_round)).properties
+                in_data = client.get_properties(timeout=30,group_id=str(server_round),ins=ins)
+                processed_in_data = {k: [v] for k,v in in_data.properties.items()}
                 client_dict = pd.DataFrame(data=processed_in_data)
                 self.survey_responses[curr_id] = client_dict[["R", "S", "D1", "D2"]]
                 if MISSING:
+                    print(client_dict["R"][0])
                     if client_dict["R"][0] == 1:
                         self.participating_clients.append(client)
                         self.client_ids.append(curr_id)
@@ -121,7 +129,7 @@ class MnarStrategy(Strategy):
         fit_configurations = []
         for idx, client in enumerate(clients):
             client_config = {"lr": 0.001, "id": idx}
-            fit_configurations.append((client, FitIns(parameters, standard_config)))
+            fit_configurations.append((client, FitIns(parameters, client_config)))
         return fit_configurations
     def get_propensity_scores(self,results,failures):
         #Temporary, unfinished implementation, currently does nothing
@@ -154,12 +162,12 @@ class MnarStrategy(Strategy):
         self, server_round: int, parameters: Parameters, client_manager: ClientManager
     ) -> List[Tuple[ClientProxy, EvaluateIns]]:
         """Configure the next round of evaluation."""
+        
         if self.fraction_evaluate == 0.0:
             return []
         if server_round % 10 != 0:
             return []
-        config = {}
-        evaluate_ins = EvaluateIns(parameters, config)
+        #evaluate_ins = EvaluateIns(parameters, config)
 
         # Sample clients
         sample_size, min_num_clients = self.num_evaluation_clients(
@@ -168,9 +176,13 @@ class MnarStrategy(Strategy):
         clients = client_manager.sample(
             num_clients=sample_size, min_num_clients=min_num_clients
         )
-
+        i = 0
+        out_list = []
+        for client in clients:
+            out_list.append((client,EvaluateIns(parameters,{"id": i})))
+            i += 1
         # Return client/config pairs
-        return [(client, evaluate_ins) for client in clients]
+        return out_list
 
     def aggregate_evaluate(
         self,
@@ -194,21 +206,19 @@ class MnarStrategy(Strategy):
             eval_metrics = [(res.num_examples, res.metrics) for _, res in results]
             metrics_aggregated = self.evaluate_metrics_aggregation_fn(eval_metrics)
             num = ""
-            #with open("number.txt") as readfile:
-            #    for line in readfile:
-            #        num = line.strip()
-            #if not MISSING:
-            #    with open(f"single_results/res_not_missing_ends_{num}.txt","a") as writefile:
-            #        writefile.write(f"{server_round}: {metrics_aggregated}\n")
-            #elif not COMPUTE_WEIGHTS:
-            #    with open(f"single_results/res_not_computed_ends_{num}.txt","a") as writefile:
-            #        writefile.write(f"{server_round}: {metrics_aggregated}\n")
-            #else:
-            #    with open(f"single_results/res_computed_ends_{num}.txt","a") as writefile:
-            #        writefile.write(f"{server_round}: {metrics_aggregated}\n")
-            if server_round % 1000 == 0:
-                with open("test_results/1000_clients.txt","a") as writefile:
-                    writefile.write(f"{server_round}: {metrics_aggregated}\n") 
+            if server_round % NUM_ROUNDS == 0:
+                with open("number.txt") as readfile:
+                    for line in readfile:
+                        num = line.strip()
+                    if not MISSING:
+                        with open(f"mnist_results/res_not_missing_ends_{num}.txt","a") as writefile:
+                            writefile.write(f"{server_round}: {metrics_aggregated}\n")
+                    elif not COMPUTE_WEIGHTS:
+                        with open(f"mnist_results/res_not_computed_ends_{num}.txt","a") as writefile:
+                            writefile.write(f"{server_round}: {metrics_aggregated}\n")
+                    else:
+                        with open(f"mnist_results/res_computed_ends_{num}.txt","a") as writefile:
+                            writefile.write(f"{server_round}: {metrics_aggregated}\n")
         return loss_aggregated, metrics_aggregated
 
     def evaluate(
