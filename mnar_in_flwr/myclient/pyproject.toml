@@ -34,7 +34,127 @@ local-epochs = 1
 default = "local-simulation"
 
 [tool.flwr.federations.local-simulation]
-options.num-supernodes = 4000
+options.num-supernodes = 100
+
+[tool.flwr.federations.local-simulation5]
+ options.num-supernodes = 5
+
+[tool.flwr.federations.local-simulation10]
+ options.num-supernodes = 10
+
+[tool.flwr.federations.local-simulation15]
+ options.num-supernodes = 15
+
+[tool.flwr.federations.local-simulation20]
+ options.num-supernodes = 20
+
+[tool.flwr.federations.local-simulation25]
+ options.num-supernodes = 25
+
+[tool.flwr.federations.local-simulation30]
+ options.num-supernodes = 30
+
+[tool.flwr.federations.local-simulation35]
+ options.num-supernodes = 35
+
+[tool.flwr.federations.local-simulation40]
+ options.num-supernodes = 40
+
+[tool.flwr.federations.local-simulation45]
+ options.num-supernodes = 45
+
+[tool.flwr.federations.local-simulation50]
+ options.num-supernodes = 50
+
+[tool.flwr.federations.local-simulation55]
+ options.num-supernodes = 55
+
+[tool.flwr.federations.local-simulation60]
+ options.num-supernodes = 60
+
+[tool.flwr.federations.local-simulation65]
+ options.num-supernodes = 65
+
+[tool.flwr.federations.local-simulation70]
+ options.num-supernodes = 70
+
+[tool.flwr.federations.local-simulation75]
+ options.num-supernodes = 75
+
+[tool.flwr.federations.local-simulation80]
+ options.num-supernodes = 80
+
+[tool.flwr.federations.local-simulation85]
+ options.num-supernodes = 85
+
+[tool.flwr.federations.local-simulation90]
+ options.num-supernodes = 90
+
+[tool.flwr.federations.local-simulation95]
+ options.num-supernodes = 95
+
+[tool.flwr.federations.local-simulation100]
+ options.num-supernodes = 100
+
+[tool.flwr.federations.local-simulation105]
+ options.num-supernodes = 105
+
+[tool.flwr.federations.local-simulation110]
+ options.num-supernodes = 110
+
+[tool.flwr.federations.local-simulation115]
+ options.num-supernodes = 115
+
+[tool.flwr.federations.local-simulation120]
+ options.num-supernodes = 120
+
+[tool.flwr.federations.local-simulation125]
+ options.num-supernodes = 125
+
+[tool.flwr.federations.local-simulation130]
+ options.num-supernodes = 130
+
+[tool.flwr.federations.local-simulation135]
+ options.num-supernodes = 135
+
+[tool.flwr.federations.local-simulation140]
+ options.num-supernodes = 140
+
+[tool.flwr.federations.local-simulation145]
+ options.num-supernodes = 145
+
+[tool.flwr.federations.local-simulation150]
+ options.num-supernodes = 150
+
+[tool.flwr.federations.local-simulation155]
+ options.num-supernodes = 155
+
+[tool.flwr.federations.local-simulation160]
+ options.num-supernodes = 160
+
+[tool.flwr.federations.local-simulation165]
+ options.num-supernodes = 165
+
+[tool.flwr.federations.local-simulation170]
+ options.num-supernodes = 170
+ 
+[tool.flwr.federations.local-simulation175]
+ options.num-supernodes = 175
+
+[tool.flwr.federations.local-simulation180]
+ options.num-supernodes = 180
+
+[tool.flwr.federations.local-simulation185]
+ options.num-supernodes = 185
+
+[tool.flwr.federations.local-simulation190]
+ options.num-supernodes = 190
+
+[tool.flwr.federations.local-simulation195]
+ options.num-supernodes = 195
+
+[tool.flwr.federations.local-simulation200]
+ options.num-supernodes = 200
 
 [tool.flwr.federations.local-simulation250]
  options.num-supernodes = 250
