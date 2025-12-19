@@ -1,7 +1,7 @@
 #!/bin/bash
 
 for ((j = 1; j < 500; j+=1)); do
-    for ((i = 5 ; i < 36 ; i+=5)); do
+    for ((i = 50 ; i < 251 ; i+=10)); do
 	echo $i > number.txt
 
 	python3 test_mnist.py $i

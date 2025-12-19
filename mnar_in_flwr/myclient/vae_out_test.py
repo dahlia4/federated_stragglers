@@ -109,6 +109,10 @@ def visualize_mnist_grid(N, n_cols=5):
         z_sample = np.array([[x, y]])
         image = vae.decoder.predict(z_sample, verbose=0)
         img = image[0, :, :, 0]  # Remove batch & channel dims
+        print("RESHAPING")
+        a = np.reshape(img, 784)
+        print(a.shape)
+        print(a)
         label = 5 if piecewise_decide_class(x,y) else 3
         
         ax = plt.subplot(n_rows, n_cols, i + 1)
@@ -155,3 +159,4 @@ for D1 in [0,1]:
 print(big_fives/big_total)
 print(total_over_0)
 print(total_under_0)
+visualize_mnist_grid(1)

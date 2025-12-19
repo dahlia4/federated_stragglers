@@ -26,12 +26,13 @@ class IntermediateDataset(Dataset):
         return len(self.X)
 
     def __getitem__(self, idx):
-        x = self.X[idx]
+        return self.X[idx], self.y[idx]
+        #x = self.X[idx]
 
-        x = x.permute(2, 0, 1)
+        #x = x.permute(2, 0, 1)
 
-        y = self.y[idx]
-        return x,y
+        #y = self.y[idx]
+        #return x,y
 
 class MyClient(NumPyClient):
     """                                                                                                           
