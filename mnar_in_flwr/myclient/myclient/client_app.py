@@ -26,7 +26,12 @@ class IntermediateDataset(Dataset):
         return len(self.X)
 
     def __getitem__(self, idx):
-        return self.X[idx], self.y[idx]
+        x = self.X[idx]
+
+        x = x.permute(2, 0, 1)
+
+        y = self.y[idx]
+        return x,y
 
 class MyClient(NumPyClient):
     """                                                                                                           
@@ -75,7 +80,7 @@ class MyClient(NumPyClient):
         set_parameters(self.net,parameters)
 
 
-        df = sample(self.dataset,1)
+        df = sample(self.dataset,10)
         y_train = np.array([i[0] for i in df])
         x_train = np.array([i[1] for i in df])
         #x_train = df.drop(["O1"], axis=1).to_numpy()

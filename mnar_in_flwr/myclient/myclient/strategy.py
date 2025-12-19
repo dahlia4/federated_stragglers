@@ -211,13 +211,13 @@ class MnarStrategy(Strategy):
                     for line in readfile:
                         num = line.strip()
                     if not MISSING:
-                        with open(f"mnist_results/res_not_missing_ends_{num}.txt","a") as writefile:
+                        with open(f"cifar_results/res_not_missing_ends_{num}.txt","a") as writefile:
                             writefile.write(f"{server_round}: {metrics_aggregated}\n")
                     elif not COMPUTE_WEIGHTS:
-                        with open(f"mnist_results/res_not_computed_ends_{num}.txt","a") as writefile:
+                        with open(f"cifar_results/res_not_computed_ends_{num}.txt","a") as writefile:
                             writefile.write(f"{server_round}: {metrics_aggregated}\n")
                     else:
-                        with open(f"mnist_results/res_computed_ends_{num}.txt","a") as writefile:
+                        with open(f"cifar_results/res_computed_ends_{num}.txt","a") as writefile:
                             writefile.write(f"{server_round}: {metrics_aggregated}\n")
         return loss_aggregated, metrics_aggregated
 
