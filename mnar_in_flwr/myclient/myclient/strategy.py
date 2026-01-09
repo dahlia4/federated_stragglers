@@ -48,7 +48,7 @@ class MnarStrategy(Strategy):
         self.survey_responses = {}
         self.participating_clients = []
         self.client_ids = []
-        
+        self.num_failures = 0
 
     def __repr__(self) -> str:
         return "MnarStrategy"
@@ -100,7 +100,7 @@ class MnarStrategy(Strategy):
                 #conf = Config({"id":curr_id})
                 
                 #in_data = client.get_properties(ins=ins,timeout=30,group_id=str(server_round)).properties
-                in_data = client.get_properties(timeout=30,group_id=str(server_round),ins=ins)
+                in_data = client.get_properties(timeout=60,group_id=str(server_round),ins=ins)
                 processed_in_data = {k: [v] for k,v in in_data.properties.items()}
                 client_dict = pd.DataFrame(data=processed_in_data)
                 self.survey_responses[curr_id] = client_dict[["R", "S", "D1", "D2"]]
@@ -142,7 +142,7 @@ class MnarStrategy(Strategy):
         failures: List[Union[Tuple[ClientProxy, FitRes], BaseException]],
     ) -> Tuple[Optional[Parameters], Dict[str, Scalar]]:
         """Aggregate fit results using weighted average."""
-
+        self.num_failures += len(failures)
         #Returns a list of propensity scores, with one per result
         propensity_scores = self.get_propensity_scores(results,failures)
         
@@ -211,14 +211,14 @@ class MnarStrategy(Strategy):
                     for line in readfile:
                         num = line.strip()
                     if not MISSING:
-                        with open(f"mnist_vae_results/res_not_missing_ends_{num}.txt","a") as writefile:
-                            writefile.write(f"{server_round}: {metrics_aggregated}\n")
+                        with open(f"single_vae_results/res_not_missing_ends_{num}.txt","a") as writefile:
+                            writefile.write(f"{server_round}: {metrics_aggregated}, num_failures: {self.num_failures}\n")
                     elif not COMPUTE_WEIGHTS:
-                        with open(f"mnist_vae_results/res_not_computed_ends_{num}.txt","a") as writefile:
-                            writefile.write(f"{server_round}: {metrics_aggregated}\n")
+                        with open(f"single_vae_results/res_not_computed_ends_{num}.txt","a") as writefile:
+                            writefile.write(f"{server_round}: {metrics_aggregated}, num_failures: {self.num_failures}\n")
                     else:
-                        with open(f"mnist_vae_results/res_computed_ends_{num}.txt","a") as writefile:
-                            writefile.write(f"{server_round}: {metrics_aggregated}\n")
+                        with open(f"single_vae_results/res_computed_ends_{num}.txt","a") as writefile:
+                            writefile.write(f"{server_round}: {metrics_aggregated}, num_failures: {self.num_failures}\n")
         return loss_aggregated, metrics_aggregated
 
     def evaluate(

@@ -71,7 +71,7 @@ class MyClient(NumPyClient):
         return get_parameters(self.net)
 
     def fit(self,parameters,config):
-        print(config)
+        #print(config)
         if not self.real_demographics_set:
             self.real_demographics_set = True
             self.demographics["D1"] = demographic_dict[config["id"]][0]
@@ -121,6 +121,7 @@ class MyClient(NumPyClient):
         #if temp_dict["R"] == 0:
         #    temp_dict["S"] = -1
         #return temp_dict
+        print("starting")
         n_samples = 1
         self.dataset = in_data[config["id"]]
         df = sample(self.dataset,1)
@@ -131,10 +132,10 @@ class MyClient(NumPyClient):
         trainloader = DataLoader(train_dataset,batch_size = 1)
         inputs, targets = next(iter(trainloader))
         O1hat = self.net(inputs).detach().numpy().flatten()
-        print("O1")
-        print(O1)
-        print("O1hat")
-        print(O1hat)
+        #print("O1")
+        #print(O1)
+        #print("O1hat")
+        #print(O1hat)
         
         D1, D2 = demographic_dict[config["id"]][0], demographic_dict[config["id"]][1]
         S = np.random.binomial(1, expit(D1 - 10 * (O1 - O1hat) ** 2), n_samples)
@@ -150,7 +151,7 @@ class MyClient(NumPyClient):
         df = {"D1": D1, "D2": D2, "S": int(S[0]), "R": int(R[0])}
         if df["R"] == 0:
             df["S"] = -1
-
+        print("ok")
         return df
     def _generate_large_train_set(self, num_rows):
         """                                                                                                      \
