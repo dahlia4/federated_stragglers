@@ -1,0 +1,15 @@
+500: {'accuracy': 0.578}
+500: {'accuracy': 0.614}
+500: {'accuracy': 0.593}
+500: {'accuracy': 0.606}
+500: {'accuracy': 0.561}
+500: {'accuracy': 0.596}
+500: {'accuracy': 0.53}
+500: {'accuracy': 0.581}
+500: {'accuracy': 0.611}
+500: {'accuracy': 0.619}
+500: {'accuracy': 0.489}
+500: {'accuracy': 0.591}
+500: {'accuracy': 0.521}
+500: {'accuracy': 0.587}
+500: {'accuracy': 0.549}

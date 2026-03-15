@@ -25,7 +25,7 @@ def server_fn(context):
         #min_available_clients=10,
         evaluate_metrics_aggregation_fn = weighted_average
     )
-    config = ServerConfig(num_rounds=NUM_ROUNDS)
+    config = ServerConfig(num_rounds=NUM_ROUNDS,round_timeout=120)
     return ServerAppComponents(strategy=strategy, config=config)
 
 # Create ServerApp

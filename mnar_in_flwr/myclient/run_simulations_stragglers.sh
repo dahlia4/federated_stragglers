@@ -1,0 +1,25 @@
+#!/bin/bash                                                                                                                                                                                 
+
+#Goal graph: accuracy vs timeout time
+
+
+
+for ((j = 1; j < 500; j+=1)); do
+    echo "300" > number.txt
+    python3 test_mnist.py 300
+
+    echo "MISSING = True" > myclient/missing.py
+
+    sleep 60
+    for ((i = 10 ; i < 46 ; i+=5)); do
+	echo "timeout = "$i > myclient/timeout_straggler.py
+        
+        echo "COMPUTE_WEIGHTS = True" > myclient/compute.py                                                                                                                                 
+        
+        flwr run . local-simulation300
+
+        echo "COMPUTE_WEIGHTS = False" > myclient/compute.py
+
+	flwr run . local-simulation300
+    done
+done

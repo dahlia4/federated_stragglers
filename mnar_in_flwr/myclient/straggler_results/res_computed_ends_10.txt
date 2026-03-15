@@ -1,0 +1,15 @@
+500: {'accuracy': 0.764}, num_failures: 20793
+500: {'accuracy': 0.7826666666666666}, num_failures: 20751
+500: {'accuracy': 0.8653333333333333}, num_failures: 19324
+500: {'accuracy': 0.7626666666666667}, num_failures: 17934
+500: {'accuracy': 0.7526666666666667}, num_failures: 17713
+500: {'accuracy': 0.7733333333333333}, num_failures: 19973
+500: {'accuracy': 0.9153333333333333}, num_failures: 20926
+500: {'accuracy': 0.782}, num_failures: 21786
+500: {'accuracy': 0.79}, num_failures: 20752
+500: {'accuracy': 0.7673333333333333}, num_failures: 20393
+500: {'accuracy': 0.8433333333333334}, num_failures: 21057
+500: {'accuracy': 0.9033333333333333}, num_failures: 19999
+500: {'accuracy': 0.7766666666666666}, num_failures: 18798
+500: {'accuracy': 0.7693333333333333}, num_failures: 19514
+500: {'accuracy': 0.9486666666666667}, num_failures: 21476

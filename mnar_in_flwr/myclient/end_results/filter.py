@@ -1,0 +1,25 @@
+for i in range(500,5001,500):
+    lines = []
+    with open(f"res_computed_ends_{str(i)}.txt") as datafile:
+        for line in datafile:
+            if line[:4] == "1000":
+              lines.append(line)
+    with open(f"res_computed_filtered_{str(i)}.txt","w") as writefile:
+        for line in lines:
+            writefile.write(line)
+    lines = []
+    with open(f"res_not_computed_ends_{str(i)}.txt") as datafile:
+        for line in datafile:
+            if line[:4] == "1000":
+              lines.append(line)
+    with open(f"res_not_computed_filtered_{str(i)}.txt","w") as writefile:
+        for line in lines:
+            writefile.write(line)
+    lines = []
+    with open(f"res_not_missing_ends_{str(i)}.txt") as datafile:
+        for line in datafile:
+            if line[:4] == "1000":
+              lines.append(line)
+    with open(f"res_not_missing_ends_filtered_{str(i)}.txt","w") as writefile:
+        for line in lines:
+            writefile.write(line)

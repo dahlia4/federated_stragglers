@@ -1,0 +1,10 @@
+1000: {'accuracy': 0.8364}
+1000: {'accuracy': 0.8497}
+1000: {'accuracy': 0.871}
+1000: {'accuracy': 0.8551}
+1000: {'accuracy': 0.8494}
+1000: {'accuracy': 0.8381}
+1000: {'accuracy': 0.8538}
+1000: {'accuracy': 0.8542}
+1000: {'accuracy': 0.8392}
+1000: {'accuracy': 0.8197}

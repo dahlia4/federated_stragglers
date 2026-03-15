@@ -1,0 +1,9 @@
+250: {'accuracy': 0.88}
+250: {'accuracy': 0.832}
+250: {'accuracy': 0.912}
+250: {'accuracy': 0.912}
+250: {'accuracy': 0.888}
+250: {'accuracy': 0.704}
+250: {'accuracy': 0.624}
+250: {'accuracy': 0.864}
+250: {'accuracy': 0.792}

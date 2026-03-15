@@ -1,0 +1,157 @@
+from scipy.special import expit
+import os
+
+os.environ["KERAS_BACKEND"] = "tensorflow"
+
+import numpy as np
+from tensorflow import keras
+import tensorflow as tf
+ops = tf
+from keras import layers
+import matplotlib.pyplot as plt
+import random
+
+class Sampling(layers.Layer):
+    """Uses (z_mean, z_log_var) to sample z, the vector encoding a digit."""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.seed_generator = tf.random.Generator.from_seed(1337)
+
+    def call(self, inputs):
+        z_mean, z_log_var = inputs
+        batch = ops.shape(z_mean)[0]
+        dim = ops.shape(z_mean)[1]
+        epsilon = self.seed_generator.normal(shape=(batch, dim))
+        return z_mean + ops.exp(0.5 * z_log_var) * epsilon
+
+
+
+encoder = keras.models.load_model("cvae_encoder.h5", compile=False, custom_objects={"Sampling": Sampling})
+decoder = keras.models.load_model("cvae_decoder.h5", compile=False)
+
+def piecewise_decide_class(x,y):
+    #return true if 5, false if 3
+    if (x < -.75 and y > 0.3) or (-0.75 <= x < -0.25 and y > 0.25) or (-0.25 <= x < -0.05 and y > 0.15) or (-0.05 <= x < 0.25 and y > 0.05) or (0.25 <= x < 0.55 and y > 0.0) or (0.55 <= x < 0.8 and y > -0.05) or (0.8 <= x < 0.9 and y > -0.15) or (x >= 0.9 and y > -0.25):
+        return True
+
+
+def plot_latent_space(vae, n=30, figsize=15):
+    # display a n*n 2D manifold of digits                                                                                                  
+    digit_size = 28
+    scale = 1.0
+    figure = np.zeros((digit_size * n, digit_size * n))
+    # linearly spaced coordinates corresponding to the 2D plot                                                                             
+    # of digit classes in the latent space                                                                                                 
+    grid_x = np.linspace(-scale, scale, n)
+    grid_y = np.linspace(-scale, scale, n)[::-1]
+
+    for i, yi in enumerate(grid_y):
+        for j, xi in enumerate(grid_x):
+            z_sample = np.array([[xi, yi]])
+            x_decoded = vae.decoder.predict(z_sample, verbose=0)
+            digit = x_decoded[0].reshape(digit_size, digit_size)
+            figure[
+                i * digit_size : (i + 1) * digit_size,
+                j * digit_size : (j + 1) * digit_size,
+            ] = digit
+
+    plt.figure(figsize=(figsize, figsize))
+    start_range = digit_size // 2
+    end_range = n * digit_size + start_range
+    pixel_range = np.arange(start_range, end_range, digit_size)
+    sample_range_x = np.round(grid_x, 1)
+    sample_range_y = np.round(grid_y, 1)
+    plt.xticks(pixel_range, sample_range_x)
+    plt.yticks(pixel_range, sample_range_y)
+    plt.xlabel("z[0]")
+    plt.ylabel("z[1]")
+    plt.imshow(figure, cmap="Greys_r")
+    plt.show()
+
+class VAE(keras.Model):
+    def __init__(self, encoder, decoder, **kwargs):
+        super(VAE, self).__init__(**kwargs)
+        self.encoder = encoder
+        self.decoder = decoder
+
+vae = VAE(encoder, decoder)
+
+#plot_latent_space(vae)
+#x = random.uniform(-1.0,1.0)
+#y = random.uniform(-1.0,1.0)
+#if piecewise_decide_class(x,y) == True:
+#    print("Should return a 5")
+#else:
+#    print("Should return a 3")
+#z_sample = np.array([[x, y]])
+#arr = vae.decoder.predict(z_sample, verbose=0)
+#print(np.array2string(arr, separator=', '))
+
+
+def visualize_mnist_grid(N, n_cols=5):
+    """
+    Displays a batch of MNIST images in a grid with predicted labels.
+
+    Parameters:
+        images (np.ndarray): Array of shape (N, 28, 28, 1)
+        predict_func (callable): Function that takes a (28,28) array and returns True/False
+                                 (True -> 5, False -> 3)
+        n_cols (int): Number of columns in the grid
+    """
+    n_rows = int(np.ceil(N / n_cols))
+    
+    plt.figure(figsize=(n_cols * 2, n_rows * 2))
+    
+    for i in range(N):
+        x = random.uniform(-1.0,1.0)
+        y = random.uniform(-1.0,1.0)
+        z_sample = np.array([[x, y]])
+        image = vae.decoder.predict(z_sample, verbose=0)
+        img = image[0, :, :, 0]  # Remove batch & channel dims
+        label = 5 if piecewise_decide_class(x,y) else 3
+        
+        ax = plt.subplot(n_rows, n_cols, i + 1)
+        ax.imshow(img, cmap='gray')
+        ax.axis('off')
+        ax.set_title(str(label), fontsize=12)
+    plt.tight_layout()
+    plt.show()
+
+
+#visualize_mnist_grid(50)
+
+
+def generate_point(D1, D2):
+    #Fit a variational autoencoder on the mnist data, requires noise vectors, use this to generate digits                                  
+    #keras vae                                                                                                                             
+    X = D1 + np.random.normal(0, 2, 1)
+    Y = np.random.normal(D2 - 2 * D1, 1)
+    Z = 2 * D2 - np.random.uniform(0, 3, 1)
+    A = np.random.uniform(0,2,1) - D1 
+    
+    O1 = (expit(2 * X * Z + 2 * Z) * 2) - 1.0
+    O2 = (expit(4 * Y * A + A * 2 + Y) * 2) - 1.0
+    return O1, O2
+
+
+big_total = 0
+big_fives = 0
+total_under_0 = 0
+total_over_0 = 0
+for D1 in [0,1]:
+    for D2 in [0,1]:
+        total = 0
+        fives = 0
+        for i in range(10000):
+            x,y = generate_point(D1,D2)
+            if piecewise_decide_class(x,y):
+                fives += 1
+            total += 1
+        print("D1: " + str(D1) + " and D2: " + str(D2))
+        print("Fraction of fives: " + str(fives/total))
+        big_total += total
+        big_fives += fives
+print(big_fives/big_total)
+print(total_over_0)
+print(total_under_0)

@@ -16,6 +16,7 @@ import numpy as np
 from random import randint
 from xmlrpc.server import SimpleXMLRPCServer
 import sys
+import pickle
 
 def load_mnist_data():
     """
@@ -87,6 +88,11 @@ def piecewise_decide_class(x,y):
     #return true if 5, false if 3                                               
     if (x < -.75 and y > 0.3) or (-0.75 <= x < -0.25 and y > 0.25) or (-0.25 <= x < -0.05 and y > 0.15) or (-0.05 <= x < 0.25 and y > 0.05) or (0.25 <= x < 0.55 and y > 0.0) or (0.55 <= x < 0.8 and y > -0.05) or (0.8 <= x < 0.9 and y > -0.15) or (x >= 0.9 and y > -0.25):
         return True
+clf = pickle.load(open("model_clf_pickle", 'rb'))
+def linear_decide_class(point):
+    return clf.predict([point])[0]
+
+
 class Sampling(layers.Layer):
     """Uses (z_mean, z_log_var) to sample z, the vector encoding a digit."""
 
@@ -117,8 +123,9 @@ def get_vae_point(O1,O2):
     z_sample = np.array([[O1, O2]])
     image = vae.decoder.predict(z_sample, verbose=0)
     point = image[0, :, :, 0]
-    Y = 1 if piecewise_decide_class(O1,O2) else 0
+    #Y = 1 if piecewise_decide_class(O1,O2) else 0
     point = np.reshape(point, 784)
+    Y = linear_decide_class(point)
     return (point,Y)
 
 def get_point(X0,X1,O):

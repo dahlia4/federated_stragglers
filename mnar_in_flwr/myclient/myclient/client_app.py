@@ -4,7 +4,7 @@ import flwr
 import torch
 from flwr.client import NumPyClient, Client, ClientApp
 from flwr.common import Metrics, Context, ConfigRecord, RecordDict, Config
-from .knobs import DEVICE
+from .knobs import DEVICE, STRAGGLERS, STRAGGLER_TIMEOUT
 from .net import Net, train, test, set_parameters, get_parameters
 from torch.utils.data import Dataset, DataLoader
 #from dataset_loader import load_datasets                                                                         
@@ -14,7 +14,7 @@ from scipy.special import expit
 from .demographics import demographic_dict
 from .mnist_train import in_data
 from .mnist_test import in_test
-from random import sample
+from random import sample, random
 
 # Define Flower Client and client_fn
 class IntermediateDataset(Dataset):
@@ -34,6 +34,17 @@ class IntermediateDataset(Dataset):
         #y = self.y[idx]
         #return x,y
 
+def calculate_straggle_time(D1,D2):
+    mu = 15
+    sigma = 8
+    D1_modifier = D1 * sigma * .75
+    D2_modifier = D2 * sigma * .5
+
+    curr = 0
+    while curr < 2.5:
+        curr = np.random.normal(mu + D1_modifier + D2_modifier,sigma)
+    return curr
+        
 class MyClient(NumPyClient):
     """                                                                                                           
     To define NumPyClient: init, fit, evaluate, get_parameters                                                    
@@ -78,6 +89,10 @@ class MyClient(NumPyClient):
             self.demographics["D2"] = demographic_dict[config["id"]][1]
             self.dataset = in_data[config["id"]] 
         #Set the local model to have the global parameters                                                        
+        # 
+        #self.demographics["D1"]
+        #if demographic_fail:
+            #raise RuntimeError("Demographic failure")
         set_parameters(self.net,parameters)
 
 
@@ -91,8 +106,13 @@ class MyClient(NumPyClient):
         trainloader = DataLoader(train_dataset,batch_size = 1)
         #Train model locally for one epoch                                                                        
         train(self.net,trainloader,1)
+        
 
-        #Return updated parameters, number of examples used for training, dict with "metrics"                     
+        #Return updated parameters, number of examples used for training, dict with "metrics"
+        if STRAGGLERS:
+            straggler_time = calculate_straggle_time(self.demographics["D1"],self.demographics["D2"])
+            if straggler_time > STRAGGLER_TIMEOUT:
+                raise RuntimeError("Straggler took too long!")
         return get_parameters(self.net),len(trainloader),{}
 
     def evaluate(self,parameters,config):
@@ -121,7 +141,6 @@ class MyClient(NumPyClient):
         #if temp_dict["R"] == 0:
         #    temp_dict["S"] = -1
         #return temp_dict
-        print("starting")
         n_samples = 1
         self.dataset = in_data[config["id"]]
         df = sample(self.dataset,1)
@@ -141,17 +160,28 @@ class MyClient(NumPyClient):
         S = np.random.binomial(1, expit(D1 - 10 * (O1 - O1hat) ** 2), n_samples)
 
         pRS0 = expit(2 * D1)
+        R = np.random.binomial(1, pRS0 / (pRS0 + np.exp(4 * (1 - S)) * (1 - pRS0)), n_samples)
+        R_val = int(R[0])
+        #if STRAGGLERS:
+        #    straggle_time = calculate_straggle_time(D1,D2)
+        #    if straggle_time > STRAGGLER_TIMEOUT:
+        #        R_val = 0
+        #    else:
+        #        R = np.random.binomial(1, pRS0 / (pRS0 + np.exp(4 * (1 - S)) * (1 - pRS0)), n_samples)
+        #        R_val = int(R[0])
+        #else:
+        #    R = np.random.binomial(1, pRS0 / (pRS0 + np.exp(4 * (1 - S)) * (1 - pRS0)), n_samples)
 
-        R = np.random.binomial(
-            1, pRS0 / (pRS0 + np.exp(4 * (1 - S)) * (1 - pRS0)), n_samples
-        )
+        #R_val = int(R[0])
 
-
+        if STRAGGLERS and R_val == 0:
+            straggle_time = calculate_straggle_time(D1,D2)
+            if straggle_time > STRAGGLER_TIMEOUT:
+                R_val = 0
         #print(type(S),type(R))
-        df = {"D1": D1, "D2": D2, "S": int(S[0]), "R": int(R[0])}
+        df = {"D1": D1, "D2": D2, "S": int(S[0]), "R": R_val}
         if df["R"] == 0:
             df["S"] = -1
-        print("ok")
         return df
     def _generate_large_train_set(self, num_rows):
         """                                                                                                      \

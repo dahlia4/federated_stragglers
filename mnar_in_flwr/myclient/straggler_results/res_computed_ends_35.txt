@@ -1,0 +1,10 @@
+500: {'accuracy': 0.7886666666666666}, num_failures: 1093
+500: {'accuracy': 0.7646666666666667}, num_failures: 1100
+500: {'accuracy': 0.9006666666666666}, num_failures: 906
+500: {'accuracy': 0.9233333333333333}, num_failures: 1012
+500: {'accuracy': 0.7726666666666666}, num_failures: 1111
+500: {'accuracy': 0.9133333333333333}, num_failures: 1227
+500: {'accuracy': 0.7633333333333333}, num_failures: 997
+500: {'accuracy': 0.766}, num_failures: 1150
+500: {'accuracy': 0.9393333333333334}, num_failures: 1220
+500: {'accuracy': 0.9206666666666666}, num_failures: 1036

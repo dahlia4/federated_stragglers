@@ -1,0 +1,3 @@
+for ((i = 15 ; i < 90 ; i+=15)); do
+    echo "timeout = "$i > myclient/straggler_timeout.py
+done

@@ -1,0 +1,15 @@
+500: {'accuracy': 0.7514285714285714}, num_failures: 0
+500: {'accuracy': 0.9188571428571428}, num_failures: 0
+500: {'accuracy': 0.9108571428571428}, num_failures: 0
+500: {'accuracy': 0.8005714285714286}, num_failures: 0
+500: {'accuracy': 0.9045714285714286}, num_failures: 0
+500: {'accuracy': 0.7737142857142857}, num_failures: 0
+500: {'accuracy': 0.7782857142857142}, num_failures: 0
+500: {'accuracy': 0.9262857142857143}, num_failures: 0
+500: {'accuracy': 0.7782857142857142}, num_failures: 0
+500: {'accuracy': 0.9251428571428572}, num_failures: 0
+500: {'accuracy': 0.7605714285714286}, num_failures: 0
+500: {'accuracy': 0.7628571428571429}, num_failures: 0
+500: {'accuracy': 0.9114285714285715}, num_failures: 0
+500: {'accuracy': 0.768}, num_failures: 0
+500: {'accuracy': 0.9262857142857143}, num_failures: 0

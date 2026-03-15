@@ -1,0 +1,7 @@
+500: {'accuracy': 0.7626666666666667}, num_failures: 5074
+500: {'accuracy': 0.922}, num_failures: 3735
+500: {'accuracy': 0.9106666666666666}, num_failures: 5372
+500: {'accuracy': 0.774}, num_failures: 4391
+500: {'accuracy': 0.9113333333333333}, num_failures: 5086
+500: {'accuracy': 0.9326666666666666}, num_failures: 3270
+500: {'accuracy': 0.7533333333333333}, num_failures: 4703

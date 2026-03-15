@@ -25,7 +25,7 @@ import random
 import inspect
 from .missing import MISSING
 from .compute import COMPUTE_WEIGHTS
-from .knobs import NUM_ROUNDS
+from .knobs import NUM_ROUNDS, STRAGGLER_TIMEOUT
 
 class MnarStrategy(Strategy):
     def __init__(
@@ -49,6 +49,7 @@ class MnarStrategy(Strategy):
         self.participating_clients = []
         self.client_ids = []
         self.num_failures = 0
+        self.params = None
 
     def __repr__(self) -> str:
         return "MnarStrategy"
@@ -88,8 +89,8 @@ class MnarStrategy(Strategy):
         self, server_round: int, parameters: Parameters, client_manager: ClientManager
     ) -> List[Tuple[ClientProxy, FitIns]]:
         """Configure the next round of training."""
-
-        if server_round % 200 == 1:
+        self.params = parameters
+        if server_round % 50 == 1:
             self.participating_clients.clear()
             self.client_ids = []
             curr_id = 0
@@ -100,7 +101,7 @@ class MnarStrategy(Strategy):
                 #conf = Config({"id":curr_id})
                 
                 #in_data = client.get_properties(ins=ins,timeout=30,group_id=str(server_round)).properties
-                in_data = client.get_properties(timeout=60,group_id=str(server_round),ins=ins)
+                in_data = client.get_properties(timeout=200,group_id=str(server_round),ins=ins)
                 processed_in_data = {k: [v] for k,v in in_data.properties.items()}
                 client_dict = pd.DataFrame(data=processed_in_data)
                 self.survey_responses[curr_id] = client_dict[["R", "S", "D1", "D2"]]
@@ -143,6 +144,9 @@ class MnarStrategy(Strategy):
     ) -> Tuple[Optional[Parameters], Dict[str, Scalar]]:
         """Aggregate fit results using weighted average."""
         self.num_failures += len(failures)
+        if len(results) == 0:
+            return self.params,{}
+        
         #Returns a list of propensity scores, with one per result
         propensity_scores = self.get_propensity_scores(results,failures)
         
@@ -210,14 +214,18 @@ class MnarStrategy(Strategy):
                 with open("number.txt") as readfile:
                     for line in readfile:
                         num = line.strip()
-                    if not MISSING:
-                        with open(f"single_vae_results/res_not_missing_ends_{num}.txt","a") as writefile:
-                            writefile.write(f"{server_round}: {metrics_aggregated}, num_failures: {self.num_failures}\n")
-                    elif not COMPUTE_WEIGHTS:
-                        with open(f"single_vae_results/res_not_computed_ends_{num}.txt","a") as writefile:
+                    #if not MISSING:
+                        #with open(f"single_vae_results/res_not_missing_ends_{num}.txt","a") as writefile:
+                        #    writefile.write(f"{server_round}: {metrics_aggregated}, num_failures: {self.num_failures}\n")   
+                    if not COMPUTE_WEIGHTS:
+                        #with open(f"single_vae_results/res_not_computed_ends_{num}.txt","a") as writefile:
+                        #    writefile.write(f"{server_round}: {metrics_aggregated}, num_failures: {self.num_failures}\n")
+                        with open(f"straggler_results/res_not_computed_ends_{STRAGGLER_TIMEOUT}.txt","a") as writefile:
                             writefile.write(f"{server_round}: {metrics_aggregated}, num_failures: {self.num_failures}\n")
                     else:
-                        with open(f"single_vae_results/res_computed_ends_{num}.txt","a") as writefile:
+                        #with open(f"single_vae_results/res_computed_ends_{num}.txt","a") as writefile:
+                        #    writefile.write(f"{server_round}: {metrics_aggregated}, num_failures: {self.num_failures}\n")
+                        with open(f"straggler_results/res_computed_ends_{STRAGGLER_TIMEOUT}.txt","a") as writefile:
                             writefile.write(f"{server_round}: {metrics_aggregated}, num_failures: {self.num_failures}\n")
         return loss_aggregated, metrics_aggregated
 

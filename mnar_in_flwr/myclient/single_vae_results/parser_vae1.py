@@ -1,0 +1,44 @@
+averages = []
+start = 50
+end = 501
+increment = 50
+#x_axis = list(range(5,41,5)) + list(range(start,end,increment))
+x_axis = range(start,end,increment)
+
+for i in x_axis:
+    with open(f"res_computed_ends_{str(i)}.txt") as readfile:
+        temp = []
+        for line in readfile:
+            line=line.strip()
+            acc = float(line[len("500: {'accuracy': "):line.index("}, num_failures:")])
+            if acc > 0.6:
+                temp.append(acc)
+        averages.append(sum(temp)/len(temp))
+print("computed")
+print(averages)
+
+averages = []
+for i in x_axis:
+    with open(f"res_not_computed_ends_{str(i)}.txt") as readfile:
+        temp = []
+        for line in readfile:
+            line = line.strip()
+            acc = float(line[len("500: {'accuracy': "):line.index("}, num_failures:")])
+            if acc > 0.6:
+                temp.append(acc)
+        averages.append(sum(temp)/len(temp))
+print("not computed")
+print(averages)
+
+averages = []
+for i in x_axis:
+    with open(f"res_not_missing_ends_{str(i)}.txt") as readfile:
+        temp = []
+        for line in readfile:
+            line = line.strip()
+            acc = float(line[len("500: {'accuracy': "):line.index("}, num_failures:")])
+            if acc > 0.6:
+                temp.append(acc)
+        averages.append(sum(temp)/len(temp))
+print("not missing")
+print(averages)

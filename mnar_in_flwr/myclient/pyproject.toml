@@ -158,7 +158,23 @@ options.num-supernodes = 50
 
 [tool.flwr.federations.local-simulation250]
  options.num-supernodes = 250
- options.backend.client-resources.num-cpus = 1 
+ options.backend.client-resources.num-cpus = 1
+
+[tool.flwr.federations.local-simulation300]
+ options.num-supernodes = 300
+ options.backend.client-resources.num-cpus = 1
+
+[tool.flwr.federations.local-simulation350]
+ options.num-supernodes = 350
+ options.backend.client-resources.num-cpus = 1
+
+[tool.flwr.federations.local-simulation400]
+ options.num-supernodes = 400
+ options.backend.client-resources.num-cpus = 1
+
+[tool.flwr.federations.local-simulation450]
+ options.num-supernodes = 450
+ options.backend.client-resources.num-cpus = 1
 
 [tool.flwr.federations.local-simulation500]
  options.num-supernodes = 500

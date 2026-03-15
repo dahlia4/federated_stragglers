@@ -1,0 +1,5 @@
+500: {'accuracy': 0.7813333333333333}, num_failures: 0
+500: {'accuracy': 0.784}, num_failures: 0
+500: {'accuracy': 0.7346666666666667}, num_failures: 0
+500: {'accuracy': 0.944}, num_failures: 0
+500: {'accuracy': 0.772}, num_failures: 0

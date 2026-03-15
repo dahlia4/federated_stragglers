@@ -1,0 +1,27 @@
+computed = []
+not_computed = []
+not_missing = []
+for i in range(500,5001,500):
+    temp_results = []
+    with open(f"res_computed_filtered_{str(i)}.txt") as datafile:
+        for line in datafile:
+            temp_results.append(float(line[19:line.index("}")]))
+    computed.append(sum(temp_results)/len(temp_results))
+
+    temp_results = []
+    with open(f"res_not_computed_filtered_{str(i)}.txt") as datafile:
+        for line in datafile:
+            temp_results.append(float(line[19:line.index("}")]))
+    not_computed.append(sum(temp_results)/len(temp_results))
+            
+    lines = []
+    with open(f"res_not_missing_ends_filtered_{str(i)}.txt") as datafile:
+        for line in datafile:
+            temp_results.append(float(line[19:line.index("}")]))
+    not_missing.append(sum(temp_results)/len(temp_results))
+
+            
+
+print(computed)
+print(not_computed)
+print(not_missing)
